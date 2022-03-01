@@ -1,5 +1,5 @@
 all: serial parallel
-	./bin/WelshPowellSerial < input.txt > output.txt
+	echo Done
 
 serial: src/serial/main.cpp
 	g++ -o bin/WelshPowellSerial src/serial/main.cpp
@@ -7,5 +7,5 @@ serial: src/serial/main.cpp
 parallel: src/parallel/main.cpp
 	g++ -o bin/WelshPowellParallel src/parallel/main.cpp
 
-clean:
+clean: bin/*
 	rm bin/*

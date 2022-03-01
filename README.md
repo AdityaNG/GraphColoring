@@ -35,7 +35,7 @@ Welsh Powell algorithm is a greedy technique to solve the graph coloring problem
 6. Repeat step 4 on all uncolored vertices with a new color, in descending order of degrees until all the vertices are coloured.
 ```
 
-## Getting Started
+### Getting Started
 
 Compilation on Linux:
 ```
@@ -46,7 +46,7 @@ Usage:
 ./bin/WelshPowellSerial < input.txt
 ```
 
-## Sample input:
+#### Sample input:
 <p align="center">
     <img src="sample_input.png">
 </p>
@@ -64,7 +64,7 @@ Usage:
 0 0 0 0 0 1 0 0 1 0
 ```
 
-## Sample output:
+#### Sample output:
 ```
 C:color 1
 F:color 1
