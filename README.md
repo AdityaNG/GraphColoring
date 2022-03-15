@@ -20,6 +20,25 @@
 # Graph Coloring
 Graph coloring is computationally hard. It is NP-complete to decide if a given graph admits a k-coloring for a given k except for the cases k ∈ {0,1,2} . In particular, it is NP-hard to compute the chromatic number. The 3-coloring problem remains NP-complete even on 4-regular planar graphs.[27] However, for every k > 3, a k-coloring of a planar graph exists by the four color theorem, and it is possible to find such a coloring in polynomial time.
 
+# Getting Started
+
+Compilation on Linux:
+```
+make
+```
+Usage:
+```
+./bin/WelshPowell < input.txt > outputSerial.txt
+./bin/BruteForceSerial < input1.txt > outputParallel.txt
+./bin/BruteForcePThread < input1.txt > outputParallel.txt
+./bin/BruteForceCUDA < input1.txt > outputParallel.txt
+```
+
+Or run the test script
+```
+./test.sh
+```
+
 ## Graph Coloring using Welsh Powell algorithm
 
 Welsh Powell algorithm is a greedy technique to solve the graph coloring problem
@@ -33,17 +52,6 @@ Welsh Powell algorithm is a greedy technique to solve the graph coloring problem
 4. Move down the list and color all the vertices not connected to the coloured vertex, with the same color.
 5. X=X+1
 6. Repeat step 4 on all uncolored vertices with a new color, in descending order of degrees until all the vertices are coloured.
-```
-
-### Getting Started
-
-Compilation on Linux:
-```
-make
-```
-Usage:
-```
-./bin/WelshPowellSerial < input.txt
 ```
 
 #### Sample input:
@@ -77,4 +85,31 @@ L:color 2
 D:color 3
 B:color 3
 Graph full colored
+```
+
+## Graph Coloring using Brute Force
+
+Brute force looks at all possible colour combinations that a graph can have. Note that a graph with N verticies will have a maximum of N colors, this will be the upper bound.
+
+### Algorithm
+```
+0. Set num_colors to N
+1. Try all valid coloring combinations with a max N colors
+2. If at least one valid combination is found, save num_colors to be the min
+3. Decrement num_colors
+4. If num_colors>0 goto 0. Else exit
+```
+
+#### Sample input:
+
+```
+0 1 1 0
+1 0 1 0
+1 1 0 0
+0 0 0 0
+```
+
+#### Sample output:
+```
+min_colors: 3
 ```
