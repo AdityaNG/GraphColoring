@@ -92,7 +92,6 @@ void colorIt(Graph_t g) {
 		{
 			graph[i][j] = g.adj[i][j];
 		}
-		
 	}
 
 	vector <int> color(V,0);
@@ -116,15 +115,15 @@ int main()
 
 	int N;
 	N = V;
-    bool graph_ele_in[N][N];
+  bool graph_ele_in[N][N];
 
-    int u;
-    for (int i = 0; i < N; i++) {
+  int u;
+  for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
         	cin >> u;
 			graph_ele_in[i][j] = u;
 		}
-    }
+  }
 
 	//init graph
 	memcpy(&graph_ele1.adj, &graph_ele_in, sizeof(graph_ele1.adj));

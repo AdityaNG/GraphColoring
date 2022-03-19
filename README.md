@@ -39,6 +39,59 @@ Or run the test script
 ./test.sh
 ```
 
+# Mapping from Number Of Colours and Index i to Color Combination
+
+When distributing the task across multiple cores, it is necessary to have mapping from `CORE_ID` to `SUBPROBLEM_ID`
+
+```python
+# Look at p2i.py
+>>> v = 3 # Number of vertices 
+>>> for c in range(1, v+1):
+>>>     print('colors : ', c)
+>>>     for i in range(c**v):
+>>>         print(' ', 'index : ', i, '\t->', [c,i] ,'->\t', dec_to_base(i, c).zfill(v))
+colors :  1
+  index :  0 	-> [1, 0] ->	 000
+colors :  2
+  index :  0 	-> [2, 0] ->	 000
+  index :  1 	-> [2, 1] ->	 001
+  index :  2 	-> [2, 2] ->	 010
+  index :  3 	-> [2, 3] ->	 011
+  index :  4 	-> [2, 4] ->	 100
+  index :  5 	-> [2, 5] ->	 101
+  index :  6 	-> [2, 6] ->	 110
+  index :  7 	-> [2, 7] ->	 111
+colors :  3
+  index :  0 	-> [3, 0] ->	 000
+  index :  1 	-> [3, 1] ->	 001
+  index :  2 	-> [3, 2] ->	 002
+  index :  3 	-> [3, 3] ->	 010
+  index :  4 	-> [3, 4] ->	 011
+  index :  5 	-> [3, 5] ->	 012
+  index :  6 	-> [3, 6] ->	 020
+  index :  7 	-> [3, 7] ->	 021
+  index :  8 	-> [3, 8] ->	 022
+  index :  9 	-> [3, 9] ->	 100
+  index :  10 	-> [3, 10] ->	 101
+  index :  11 	-> [3, 11] ->	 102
+  index :  12 	-> [3, 12] ->	 110
+  index :  13 	-> [3, 13] ->	 111
+  index :  14 	-> [3, 14] ->	 112
+  index :  15 	-> [3, 15] ->	 120
+  index :  16 	-> [3, 16] ->	 121
+  index :  17 	-> [3, 17] ->	 122
+  index :  18 	-> [3, 18] ->	 200
+  index :  19 	-> [3, 19] ->	 201
+  index :  20 	-> [3, 20] ->	 202
+  index :  21 	-> [3, 21] ->	 210
+  index :  22 	-> [3, 22] ->	 211
+  index :  23 	-> [3, 23] ->	 212
+  index :  24 	-> [3, 24] ->	 220
+  index :  25 	-> [3, 25] ->	 221
+  index :  26 	-> [3, 26] ->	 222
+
+```
+
 ## Graph Coloring using Welsh Powell algorithm
 
 Welsh Powell algorithm is a greedy technique to solve the graph coloring problem
