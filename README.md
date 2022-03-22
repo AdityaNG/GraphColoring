@@ -92,6 +92,49 @@ colors :  3
 
 ```
 
+# Testing Serial vs pThread Implementation
+
+Given an input graph of 8 nodes, the serial version takes 24 seconds and the pThread implementation takes under 2 seconds. A massive 12x speedup (for 8 node graphs).
+
+```bash
+$ time ./bin/BruteForceSerial < test_graphs/inputs/input5.txt
+min_colors: 2
+
+real	0m24.675s
+user	0m24.661s
+sys	0m0.009s
+$ time ./bin/BruteForcePThread < test_graphs/inputs/input5.txt
+[TM]	Creating thread 0 
+[TM]	Creating thread 1 
+[TM]	Creating thread 2 
+[TM]	Creating thread 3 
+[TM]	Creating thread 4 
+[TM]	Creating thread 5 
+[TM]	Creating thread 6 
+[TM]	Creating thread 7 
+[T3]	 min=2
+[T5]	 min=2
+[T1]	 min=3
+[T4]	 min=2
+[T2]	 min=3
+[T7]	 min=3
+[T0]	 min=3
+[ll] Stopped thread 0 
+[ll] Stopped thread 1 
+[ll] Stopped thread 2 
+[ll] Stopped thread 3 
+[ll] Stopped thread 4 
+[ll] Stopped thread 5 
+[T6]	 min=2
+[ll] Stopped thread 6 
+[ll] Stopped thread 7 
+
+real	0m1.403s
+user	0m10.645s
+sys	0m0.004s
+aditya@sped-machine:~/LABS/HP_PROJECT
+```
+
 ## Graph Coloring using Welsh Powell algorithm
 
 Welsh Powell algorithm is a greedy technique to solve the graph coloring problem

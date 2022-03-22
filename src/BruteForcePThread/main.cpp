@@ -32,24 +32,26 @@
 
 #include <bits/stdc++.h>
 
-#define MAXTHREADS 4
+#define MAXTHREADS 8
 #define THREAD_TERMINATE_SIG -10
-#define LOG_DATA true
+#define LOG_DATA false
 
-std::vector<std::vector <int>> graph;
+using ll = long long;
+
+std::vector<std::vector <ll>> graph;
 
 // List of thread IDs 
 std::vector<pthread_t> THREADS(MAXTHREADS); // Actual Thread IDs
-// TODO : Look into replacing this with malloc
-std::vector < std::pair<int,int> > t_thread_numbers(MAXTHREADS); // Virtual Thread IDs
+// TODO : Look llo replacing this with malloc
+std::vector < std::pair<ll,ll> > t_thread_numbers(MAXTHREADS); // Virtual Thread IDs
 
-std::string decToBase(int num, int base) {
+std::string decToBase(ll num, ll base) {
   if(num==0)
     return "0";
 
   std::string base_num = "";
   while (num>0) {
-    int dig = int(num%base);
+    ll dig = ll(num%base);
     if(dig<10) {
       base_num += std::to_string(dig);
     } else {
@@ -61,28 +63,28 @@ std::string decToBase(int num, int base) {
   return base_num;
 }
 
-std::string padZeros(std::string s, int n) {
+std::string padZeros(std::string s, ll n) {
   while (s.length() < n) {
     s = "0" + s;
   }
   return s;
 }
 
-int getLength(int v) {
-  int l = 0;
-  for (int i=1; i<=v; i++) {
+ll getLength(ll v) {
+  ll l = 0;
+  for (ll i=1; i<=v; i++) {
     l += pow(i, v);
   }
   return l;
 }
 
-std::pair<int,int> getItem(int v, int key) {
-  int l = getLength(v);
+std::pair<ll,ll> getItem(ll v, ll key) {
+  ll l = getLength(v);
   assert(key <= l);
 
   key+=1;
-  int t = 1;
-  int c = 1;
+  ll t = 1;
+  ll c = 1;
   while (key>t) {
     key-=t;
     c+=1;
@@ -94,10 +96,10 @@ std::pair<int,int> getItem(int v, int key) {
   return std::make_pair(key, c);
 }
 
-bool isSafeToColor(std::vector<std::vector<int>> graph, std::vector <int> color) {
-  int V = color.size();
-  for (int i = 0; i < V; i++)
-    for (int j = i + 1; j < V; j++)
+bool isSafeToColor(std::vector<std::vector<ll>> graph, std::vector <ll> color) {
+  ll V = color.size();
+  for (ll i = 0; i < V; i++)
+    for (ll j = i + 1; j < V; j++)
       if (graph[i][j] == 1 && color[j] == color[i])
         return false;
   return true;
@@ -107,34 +109,36 @@ bool isSafeToColor(std::vector<std::vector<int>> graph, std::vector <int> color)
  * Counter to decide which thread to 
  * allocate the incoming request to 
  */
-int thread_count = 0;
+ll thread_count = 0;
 
 /*
  * DataArg handler for thread_number
  */
 void * handleDataArg(void * args) {
 
-  std::pair<int,int> threadID_v = (std::pair<int,int>) * ((std::pair<int,int> * ) args);
-  int thread_number = threadID_v.first;
-  int v = threadID_v.second;
+  std::pair<ll,ll> threadID_v = (std::pair<ll,ll>) * ((std::pair<ll,ll> * ) args);
+  ll thread_number = threadID_v.first;
+  ll v = threadID_v.second;
 
   pthread_t p_id = pthread_self();
-  if (LOG_DATA) printf("[T%d]\tWating %ld, %d\n", thread_number, p_id, v);
+  if (LOG_DATA) printf("[T%lld]\tStarted %ld, %lld\n", thread_number, p_id, v);
 
-  int min_count = v;
+  ll min_count = v;
 
-  int l = getLength(v);
-  for (int i=0; i<l/MAXTHREADS; i++) {
-    int id = i * MAXTHREADS + (thread_number%MAXTHREADS);
-    std::pair<int,int> c_j = getItem(v, id);
-    int c = c_j.second;
-    int j = c_j.first;
+  ll l = getLength(v);
+  for (ll i=0; i<l/MAXTHREADS; i++) {
+    ll id = i * MAXTHREADS + (thread_number%MAXTHREADS);
+    std::pair<ll,ll> c_j = getItem(v, id);
+    ll c = c_j.second;
+    ll j = c_j.first;
+    if (LOG_DATA) printf("[T%lld]\t(%lld, %lld)\n", thread_number, c, j);
     if (c < min_count) {
       std::string col = padZeros(decToBase(j, c), v);
       
-      if (LOG_DATA) printf("[T%d]\t(%d, %d)\t->\t%s\n", thread_number, c, j, col.c_str());
-      std::vector<int> colors(v, 0);
-      for (int t=0; t<v; t++) {
+      //if (LOG_DATA) printf("[T%lld]\t(%lld, %lld)\t->\t%s\n", thread_number, c, j, col.c_str());
+
+      std::vector<ll> colors(v, 0);
+      for (ll t=0; t<v; t++) {
         colors[t] = col.at(t) - '0';
       }
 
@@ -145,39 +149,40 @@ void * handleDataArg(void * args) {
     }
   }
 
-  if (LOG_DATA) printf("[T%d]\t min=%d\n", thread_number, min_count);
+  //if (LOG_DATA)
+  printf("[T%lld]\t min=%lld\n", thread_number, min_count);
 
   return NULL;
 }
 
 int main(int argc, char ** argv) {
 
-  int v;
+  ll v;
   std::cin >> v;
 
-  graph = std::vector<std::vector <int>>(v, std::vector<int>(v, 0));
+  graph = std::vector<std::vector <ll>>(v, std::vector<ll>(v, 0));
 
-  for (int i=0; i<v; i++) {
-    for (int j=0; j<v; j++) {
+  for (ll i=0; i<v; i++) {
+    for (ll j=0; j<v; j++) {
       std::cin >> graph[i][j];
     }
   }
 
   // Create all the threads
-  for (int i = 0; i < MAXTHREADS; i++)
+  for (ll i = 0; i < MAXTHREADS; i++)
   {
     pthread_t thread_number;
-    printf("[TM]\tCreating thread %d \n", i);
+    printf("[TM]\tCreating thread %lld \n", i);
     t_thread_numbers[i] = std::make_pair(i, v);
     pthread_create( & thread_number, NULL, handleDataArg, (void * ) & t_thread_numbers[i]);
     THREADS[i] = thread_number;
   }
 
-  for (int i = 0; i < MAXTHREADS; i++)
+  for (ll i = 0; i < MAXTHREADS; i++)
   {
     pthread_t thread_id = THREADS[i];
     pthread_join(thread_id, NULL);
-    printf("[INT] Stopped thread %d \n", i);
+    printf("[ll] Stopped thread %lld \n", i);
   }
 
 }

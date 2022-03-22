@@ -6,7 +6,7 @@
 #include <limits>
 
 using namespace std;
-const int V = 4;   //vertex no.
+const int V = 8;   //vertex no.
 
 
 const int colors[V] = { 0,1,2, 4 };
@@ -49,13 +49,13 @@ bool isSafeToColor(vector < vector < int >> & graph, vector < int > color) {
 }
  
 void printColorArray(vector < int > color) {
-  cout << ("Solution colors are: ") << endl;
+  //cout << ("Solution colors are: ") << endl;
 
   set<int> s;
   //min_colors
 
   for (int i = 0; i < color.size(); i++) {
-    cout << (color[i]);
+    //cout << (color[i]);
 	s.insert(color[i]);
   }
   
@@ -63,7 +63,7 @@ void printColorArray(vector < int > color) {
 	min_colors = s.size();
   }
 
-  cout << endl;
+  //cout << endl;
 }
 bool graphColoring(vector < vector < int >> & graph, int m, int i, vector < int > color) {
 	//cout << m << '\t' << i << endl;

@@ -67,7 +67,7 @@ def get_item(v, key):
 
     return key, c, dec_to_base(key, c).zfill(v)
 
-v = 3
+v = 7
 
 m = Mapper(2)
 l = get_length(v)
