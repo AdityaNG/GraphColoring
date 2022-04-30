@@ -132,7 +132,6 @@ $ time ./bin/BruteForcePThread < test_graphs/inputs/input5.txt
 real	0m1.403s
 user	0m10.645s
 sys	0m0.004s
-aditya@sped-machine:~/LABS/HP_PROJECT
 ```
 
 ## Graph Coloring using Welsh Powell algorithm

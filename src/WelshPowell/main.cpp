@@ -1,43 +1,16 @@
+#include <stdio.h>
 #include <iostream>
-#include <algorithm>
-#include <cstring>
+#include <string.h>
 #include <vector>
-using namespace std;
-const int x = 10;   //vertex no.
+#include <math.h>
+#include <cassert>
+#include <bits/stdc++.h> // std::reverse
 
+#define LOG_DATA false
 
-const int colors[x] = { 0,1,2,3,4,5,6,7,8,9 };
-int counter = 0;
-bool problem = false;
+using ll = long long;
 
-/* 
-
-	 Example graph
-
-		 2      7---------8
-		/ \      \        |
-       /   \      \       |
-      /     \      \      |
-     1------3-------5-----9
-     \     /       /      |
-      \   /       /       |
-       \ /       /        |
-        4-------6---------10
-
-*/
-
-int rate_list[x]; //{ 0,0,0,0,0,0,0,0,0,0};
-
-struct Graph_t {
-	int vertex_rates[x];
-	bool adj[x][x];
-	int colors[x];
-	bool colored[x];
-};
-
-//welsh powell
-
-void colorIt(Graph_t g) {
+void colorIt(std::vector<std::vector <ll>> graph, std::vector<ll> rate_list, ll v, ll counter) {
 	counter++;
 	int biggest=0;
 	int temp_rate = 0;
@@ -45,13 +18,13 @@ void colorIt(Graph_t g) {
 	//rate listing from adj matrix (counting edges)
 
 	if (counter == 1)
-		for (int i = 0; i < x; i++)
-			for (int j = 0; j < x; j++)
+		for (int i = 0; i < v; i++)
+			for (int j = 0; j < v; j++)
 				if (g.adj[i][j])
 					rate_list[i]++;
 
 
-	for (int w = 0; w < x; w++)
+	for (int w = 0; w < v; w++)
 		if (!g.colored[w]) {
 			g.vertex_rates[w] = rate_list[w];
 			if (temp_rate < g.vertex_rates[w]) {
@@ -67,9 +40,9 @@ void colorIt(Graph_t g) {
 
 	//coloring which doesn't have path with biggest one
 
-	for (int e=0;e < x;e++)
+	for (int e=0;e < v;e++)
 		if (!g.adj[biggest][e] && biggest!=e && !g.colored[e]) {
-			for (int t = 0; t < x;t++) {
+			for (int t = 0; t < v;t++) {
 
 				if(g.adj[e][t] &&g.colors[t]==g.colors[biggest]) problem = true;
 
@@ -94,37 +67,25 @@ void colorIt(Graph_t g) {
 
 	}
 
-	else colorIt(g); // recusive
+	else colorIt(graph, counter); // recusive
 
 }
 
-int main()
-{
-	Graph_t graph_ele1;
+int main(int argc, char ** argv) {
+	ll v;
+	std::cin >> v;
 
-	//init color
+	std::vector<std::vector <ll>> graph;
+	graph = std::vector<std::vector <ll>>(v, std::vector<ll>(v, 0));
 
-	for (int y = 0; y < x; y++) {
-		graph_ele1.colors[y] = 99;
-		graph_ele1.colored[y] = false;
+	for (ll i=0; i<v; i++) {
+		for (ll j=0; j<v; j++) {
+		std::cin >> graph[i][j];
+		}
 	}
 
-	int N;
-	N = x;
-    bool graph_ele_in[N][N];
+	std::vector<ll> rate_list(v,0);
+	
+	colorIt(graph, rate_list, v, 0);
 
-    int u;
-    for (int i = 0; i < N; i++) {
-		for (int j = 0; j < N; j++) {
-        	cin >> u;
-			graph_ele_in[i][j] = u;
-		}
-    }
-
-	//init graph
-	memcpy(&graph_ele1.adj, &graph_ele_in, sizeof(graph_ele1.adj));
-
-	colorIt(graph_ele1);
-
-	return 0;
 }

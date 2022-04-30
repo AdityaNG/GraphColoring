@@ -1,36 +1,11 @@
-/* 
- * Thread Pool
- */
-
 #include <stdio.h>
 #include <iostream>
-#include <unistd.h>
-#include <stdlib.h>
 #include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <pthread.h>
-
 #include <vector>
-#include <set>
-#include <map>
-#include <queue>
-#include <deque>
-
-#include <utility>
-
-#include <sys/types.h>
-#include <sys/syscall.h>
-#include <cstdlib>
-#include <signal.h>
-
 #include <math.h>
 #include <cassert>
-
-#include <bits/stdc++.h>
+#include <bits/stdc++.h> // std::reverse
 
 #define MAXTHREADS 8
 #define THREAD_TERMINATE_SIG -10

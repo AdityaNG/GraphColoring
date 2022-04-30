@@ -1,137 +1,143 @@
+#include <stdio.h>
 #include <iostream>
-#include <algorithm>
-#include <cstring>
+#include <string.h>
 #include <vector>
-#include <set>
-#include <limits>
+#include <math.h>
+#include <cassert>
+#include <bits/stdc++.h> // std::reverse
 
-using namespace std;
-const int V = 4;   //vertex no.
+#include <cuda.h>
 
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
 
-const int colors[V] = { 0,1,2, 4 };
-int counter = 0;
-bool problem = false;
+/*
+TODO:
+1. Remove C++ STL dependency in all functions, migrate to normal arrays
+  1.1 (you may choose to migrate to migrate to CUDA's Thrust library)
+2. Remove any use of C++ strings, convert to c strings
+3. Remove any memory operations (malloc, free) from all the functions but main()
+4. Rewrite the for loop in the main() fn as a kernel function
+  4.1 Split up the task across the kernels
+  4.2 Refer to make BruteForcePThread's handleDataArg() for details
+5. Allocate memory on the GPU in the main function
+6. Call the CUDA kernels appropriately
 
-/* 
-
-	 Example graph
-
-        2      7---------8
-        / \      \        |
-       /   \      \       |
-      /     \      \      |
-     1------3-------5-----9
-     \     /       /      |
-      \   /       /       |
-       \ /       /        |
-        4-------6---------10
-
+Useful:
+1. To Compile:
+  make BruteForceCUDA
+2. To run:
+  ./test.sh
 */
 
-int rate_list[V]; //{ 0,0,0,0,0,0,0,0,0,0};
+#define LOG_DATA false
 
-int min_colors = std::numeric_limits<int>::max();
+using ll = long long;
 
-struct Graph_t {
-	int verteV_rates[V];
-	bool adj[V][V];
-	int colors[V];
-	bool colored[V];
-};
+std::vector<std::vector <ll>> graph;
 
-bool isSafeToColor(vector < vector < int >> & graph, vector < int > color) {
-  for (int i = 0; i < V; i++)
-    for (int j = i + 1; j < V; j++)
+std::string decToBase(ll num, ll base) {
+  if(num==0)
+    return "0";
+
+  std::string base_num = "";
+  while (num>0) {
+    ll dig = ll(num%base);
+    if(dig<10) {
+      base_num += std::to_string(dig);
+    } else {
+      base_num += std::string(1, char('A'+dig-10));  // Using uppercase letters
+    }
+    num = num/base;
+  }
+  std::reverse(base_num.begin(), base_num.end());// To reverse the string
+  return base_num;
+}
+
+std::string padZeros(std::string s, ll n) {
+  while (s.length() < n) {
+    s = "0" + s;
+  }
+  return s;
+}
+
+ll getLength(ll v) {
+  ll l = 0;
+  for (ll i=1; i<=v; i++) {
+    l += pow(i, v);
+  }
+  return l;
+}
+
+std::pair<ll,ll> getItem(ll v, ll key) {
+  ll l = getLength(v);
+  assert(key <= l);
+
+  key+=1;
+  ll t = 1;
+  ll c = 1;
+  while (key>t) {
+    key-=t;
+    c+=1;
+    t = pow(c, v);
+  }
+        
+  key -= 1;
+
+  return std::make_pair(key, c);
+}
+
+bool isSafeToColor(std::vector<std::vector<ll>> graph, std::vector <ll> color) {
+  ll V = color.size();
+  for (ll i = 0; i < V; i++)
+    for (ll j = i + 1; j < V; j++)
       if (graph[i][j] == 1 && color[j] == color[i])
         return false;
   return true;
 }
- 
-void printColorArray(vector < int > color) {
-  cout << ("Solution colors are: ") << endl;
 
-  set<int> s;
-  //min_colors
+int main(int argc, char ** argv) {
 
-  for (int i = 0; i < color.size(); i++) {
-    cout << (color[i]);
-	s.insert(color[i]);
-  }
-  
-  if (s.size() < min_colors) {
-	min_colors = s.size();
-  }
+  ll v;
+  std::cin >> v;
 
-  cout << endl;
-}
-bool graphColoring(vector < vector < int >> & graph, int m, int i, vector < int > color) {
-	//cout << m << '\t' << i << endl;
-  if (i == V) {
-    if (isSafeToColor(graph, color)) {
-      printColorArray(color);
-      //return true;
+  graph = std::vector<std::vector <ll>>(v, std::vector<ll>(v, 0));
+
+  for (ll i=0; i<v; i++) {
+    for (ll j=0; j<v; j++) {
+      std::cin >> graph[i][j];
     }
-    return false;
   }
-  for (int j = 1; j <= m; j++) {
-    color[i] = j;
-    if (graphColoring(graph, m, i + 1, color))
-      return true;
- 
-    color[i] = 0;
-  }
- 
-  return false;
-}
 
-void colorIt(Graph_t g) {
-	vector < vector < int >> graph(V, vector<int>(V,0));
-	for (int i=0; i<V; i++) {
-		for (int j = 0; j<V; j++)
-		{
-			graph[i][j] = g.adj[i][j];
-		}
-		
-	}
+  ll min_count = v;
 
-	vector <int> color(V,0);
-	for (int i=0; i<V; i++) {
-		color[i] = 0;
-	}
+  ll l = getLength(v);
+  for (ll i=0; i<l; i++) {
+    //ll id = i * MAXTHREADS + (thread_number%MAXTHREADS);
+    ll id = i;
+    std::pair<ll,ll> c_j = getItem(v, id);
+    ll c = c_j.second;
+    ll j = c_j.first;
+    
+    //if (LOG_DATA) printf("(%lld, %lld)\n", c, j);
+    if (c < min_count) {
+      std::string col = padZeros(decToBase(j, c), v);
+      
+      if (LOG_DATA) printf("(%lld, %lld)\t->\t%s\n", c, j, col.c_str());
 
-	graphColoring(graph, V, 0, color);
-}
+      std::vector<ll> colors(v, 0);
+      for (ll t=0; t<v; t++) {
+        colors[t] = col.at(t) - '0';
+      }
 
-int main()
-{
-	Graph_t graph_ele1;
-
-	//init color
-
-	for (int y = 0; y < V; y++) {
-		graph_ele1.colors[y] = 99;
-		graph_ele1.colored[y] = false;
-	}
-
-	int N;
-	N = V;
-    bool graph_ele_in[N][N];
-
-    int u;
-    for (int i = 0; i < N; i++) {
-		for (int j = 0; j < N; j++) {
-        	cin >> u;
-			graph_ele_in[i][j] = u;
-		}
+      assert(col.length()==v);
+      if (isSafeToColor(graph, colors)) {
+        min_count = c;
+      }
     }
+  }
 
-	//init graph
-	memcpy(&graph_ele1.adj, &graph_ele_in, sizeof(graph_ele1.adj));
+  //if (LOG_DATA)
+  printf("min=%lld\n", min_count);
 
-	colorIt(graph_ele1);
-
-	cout<<"min_colors: "<<min_colors<<endl;
-
-	return 0;
 }
