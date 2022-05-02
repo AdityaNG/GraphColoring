@@ -1,22 +1,22 @@
 [TM]	Creating thread 0 
 [TM]	Creating thread 1 
-[TM]	Creating thread 2 
 [T0]	 min=0
-[TM]	Creating thread 3 
+[TM]	Creating thread 2 
 [T1]	 min=0
+[TM]	Creating thread 3 
 [T2]	 min=0
 [TM]	Creating thread 4 
 [T3]	 min=0
 [TM]	Creating thread 5 
-[TM]	Creating thread 6 
 [T4]	 min=0
-[TM]	Creating thread 7 
+[TM]	Creating thread 6 
 [T5]	 min=0
+[TM]	Creating thread 7 
+[T6]	 min=0
 [ll] Stopped thread 0 
 [ll] Stopped thread 1 
 [ll] Stopped thread 2 
 [ll] Stopped thread 3 
-[T6]	 min=0
 [T7]	 min=0
 [ll] Stopped thread 4 
 [ll] Stopped thread 5 

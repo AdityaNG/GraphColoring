@@ -1,91 +1,134 @@
-#include <stdio.h>
 #include <iostream>
-#include <string.h>
+#include <algorithm>
+#include <cstring>
 #include <vector>
-#include <math.h>
-#include <cassert>
-#include <bits/stdc++.h> // std::reverse
+#include <set>
+#include <limits>
 
-#define LOG_DATA false
-
-using ll = long long;
-
-void colorIt(std::vector<std::vector <ll>> graph, std::vector<ll> rate_list, ll v, ll counter) {
-	counter++;
-	int biggest=0;
-	int temp_rate = 0;
-
-	//rate listing from adj matrix (counting edges)
-
-	if (counter == 1)
-		for (int i = 0; i < v; i++)
-			for (int j = 0; j < v; j++)
-				if (g.adj[i][j])
-					rate_list[i]++;
+using namespace std;
+const int V = 4;   //vertex no.
 
 
-	for (int w = 0; w < v; w++)
-		if (!g.colored[w]) {
-			g.vertex_rates[w] = rate_list[w];
-			if (temp_rate < g.vertex_rates[w]) {
-				temp_rate = g.vertex_rates[w];
-				biggest = w;
-			}
-		}
+const int colors[V] = { 0,1,2, 4 };
+int counter = 0;
+bool problem = false;
 
-	//coloring biggest one first
+/* 
+	 Example graph
+		 2      7---------8
+		/ \      \        |
+       /   \      \       |
+      /     \      \      |
+     1------3-------5-----9
+     \     /       /      |
+      \   /       /       |
+       \ /       /        |
+        4-------6---------10
+*/
 
-	g.colors[biggest] = colors[counter];
-	std::cout << "vert(" << biggest << ")" <<":color("<< g.colors[biggest]<<")"<<std::endl;
+int rate_list[V]; //{ 0,0,0,0,0,0,0,0,0,0};
 
-	//coloring which doesn't have path with biggest one
+int min_colors = std::numeric_limits<int>::max();
 
-	for (int e=0;e < v;e++)
-		if (!g.adj[biggest][e] && biggest!=e && !g.colored[e]) {
-			for (int t = 0; t < v;t++) {
+struct Graph_t {
+	int verteV_rates[V];
+	bool adj[V][V];
+	int colors[V];
+	bool colored[V];
+};
 
-				if(g.adj[e][t] &&g.colors[t]==g.colors[biggest]) problem = true;
+bool isSafeToColor(vector < vector < int >> & graph, vector < int > color) {
+  for (int i = 0; i < V; i++)
+    for (int j = i + 1; j < V; j++)
+      if (graph[i][j] == 1 && color[j] == color[i])
+        return false;
+  return true;
+}
+ 
+void printColorArray(vector < int > color) {
+  cout << ("Solution colors are: ") << endl;
 
-					if (t == x - 1 && !problem) {
-						g.colors[e] = colors[counter];
-						std::cout << "vert(" << e << ")" <<":color("<< g.colors[e] << ")" << std::endl;
-						g.colored[e] = true;
-						problem = false;
-					}
-					else if (t == x - 1) problem = false;
-			}
-		}
+  set<int> s;
+  //min_colors
 
-		g.colored[biggest] = true;
+  for (int i = 0; i < color.size(); i++) {
+    cout << (color[i]);
+	s.insert(color[i]);
+  }
+  
+  if (s.size() < min_colors) {
+	min_colors = s.size();
+  }
 
-	//somehow it gives sometimes "access violation" error
-
-	if (std::all_of(std::begin(g.colored), std::end(g.colored), [](bool i) { return i; })) {
-		std::cout << "Graph full colored" << std::endl;
-		//system("pause");
-		exit(EXIT_SUCCESS);
-
-	}
-
-	else colorIt(graph, counter); // recusive
-
+  cout << endl;
+}
+bool graphColoring(vector < vector < int >> & graph, int m, int i, vector < int > color) {
+	//cout << m << '\t' << i << endl;
+  if (i == V) {
+    if (isSafeToColor(graph, color)) {
+      printColorArray(color);
+      //return true;
+    }
+    return false;
+  }
+  for (int j = 1; j <= m; j++) {
+    color[i] = j;
+    if (graphColoring(graph, m, i + 1, color))
+      return true;
+ 
+    color[i] = 0;
+  }
+ 
+  return false;
 }
 
-int main(int argc, char ** argv) {
-	ll v;
-	std::cin >> v;
-
-	std::vector<std::vector <ll>> graph;
-	graph = std::vector<std::vector <ll>>(v, std::vector<ll>(v, 0));
-
-	for (ll i=0; i<v; i++) {
-		for (ll j=0; j<v; j++) {
-		std::cin >> graph[i][j];
+void colorIt(Graph_t g) {
+	vector < vector < int >> graph(V, vector<int>(V,0));
+	for (int i=0; i<V; i++) {
+		for (int j = 0; j<V; j++)
+		{
+			graph[i][j] = g.adj[i][j];
 		}
+		
 	}
 
-	std::vector<ll> rate_list(v,0);
-	
-	colorIt(graph, rate_list, v, 0);
+	vector <int> color(V,0);
+	for (int i=0; i<V; i++) {
+		color[i] = 0;
+	}
 
+	graphColoring(graph, V, 0, color);
+}
+
+int main()
+{
+	Graph_t graph_ele1;
+
+	//init color
+
+	for (int y = 0; y < V; y++) {
+		graph_ele1.colors[y] = 99;
+		graph_ele1.colored[y] = false;
+	}
+
+	int N;
+	N = V;
+    bool graph_ele_in[N][N];
+
+    int u;
+    for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+        	cin >> u;
+			graph_ele_in[i][j] = u;
+		}
+    }
+
+	//init graph
+	memcpy(&graph_ele1.adj, &graph_ele_in, sizeof(graph_ele1.adj));
+
+	colorIt(graph_ele1);
+
+	cout<<"min_colors: "<<min_colors<<endl;
+
+	return 0;
 }

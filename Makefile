@@ -7,6 +7,9 @@ WelshPowell: src/WelshPowell/main.cpp
 BruteForceSerial: src/BruteForceSerial/main.cpp
 	g++ -o bin/BruteForceSerial src/BruteForceSerial/main.cpp
 
+BruteForceOMP: src/BruteForceOMP/main.cpp
+	g++ -o bin/BruteForceOMP src/BruteForceOMP/main.cpp -fopenmp -lpthread
+
 BruteForcePThread: src/BruteForcePThread/main.cpp
 	g++ -o bin/BruteForcePThread -pthread src/BruteForcePThread/main.cpp
 
