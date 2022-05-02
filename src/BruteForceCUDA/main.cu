@@ -39,17 +39,17 @@ std::vector<std::vector <ll>> graph;
 ll* cgraph = &graph[][0];
 
 // helper functions
-char* decToBase(ll num, ll base) {
+std::string decToBase(ll num, ll base) {
   if(num==0)
     return "0";
 
-  char* base_num = "";
+  std::string base_num = "";
   while (num>0) {
     ll dig = ll(num%base);
     if(dig<10) {
       base_num += std::to_string(dig);
     } else {
-      base_num += char*(1, char('A'+dig-10));  // Using uppercase letters
+      base_num += std::string(1, char('A'+dig-10));  // Using uppercase letters
     }
     num = num/base;
   }
@@ -57,7 +57,7 @@ char* decToBase(ll num, ll base) {
   return base_num;
 }
 
-char* padZeros(char* s, ll n) {
+std::string padZeros(std::string s, ll n) {
   while (s.length() < n) {
     s = "0" + s;
   }
@@ -91,7 +91,7 @@ std::pair<ll,ll> getItem(ll v, ll key) {
 }
 
 // coloring
-__global__ bool isSafeToColor(ll* cgraph, ll* color, int size) {
+__global__ void isSafeToColor(ll* cgraph, ll* color, int size, bool* answer) {
   ll V = size; 
   int xindex = blockIdx.x * blockDim.x + threadIdx.x;
   int yindex = xindex+1; //blockIdx.y * blockDim.y + threadIdx.y;
@@ -100,8 +100,8 @@ __global__ bool isSafeToColor(ll* cgraph, ll* color, int size) {
   if(xindex<V && yindex<V)
   {
     if (cgraph[xindex][yindex] == 1 && color[yindex] == color[xindex])
-          return false;
-    return true;
+          *answer= false;
+    *answer= true;
   }
 }
 
@@ -136,7 +136,7 @@ int main(int argc, char ** argv) {
     
     //if (LOG_DATA) printf("(%lld, %lld)\n", c, j);
     if (c < min_count) {
-      char* col = padZeros(decToBase(j, c), v);
+      std::string col = padZeros(decToBase(j, c), v);
       
       if (LOG_DATA) printf("(%lld, %lld)\t->\t%s\n", c, j, col.c_str());
 
@@ -153,14 +153,25 @@ int main(int argc, char ** argv) {
 
       assert(col.length()==v);
       // call kernel function
+      bool h_answer;
+      bool* d_answer;
+      
+      ll* d_graph;
+      ll* d_colors;
+      
       cudaMalloc((void **)&d_graph, v*v*sizeof(ll));
       cudaMalloc((void **)&d_colors, v*sizeof(ll));
-      //int mx = max(512, v);
-      cudaMemcpy(d_graph, &cgraphs, v*v*sizeof(ll), cudaMemcpyHostToDevice);
+      cudaMalloc(&d_answer, sizeof(bool));
+
+      cudaMemcpy(d_graph, &cgraph, v*v*sizeof(ll), cudaMemcpyHostToDevice);
       cudaMemcpy(d_colors, &colors, v*sizeof(ll), cudaMemcpyHostToDevice);
-      if (isSafeToColor<<<v*v,1>>>(cgraph, colors, v)) {
+      isSafeToColor<<<v*v,1>>>(d_graph, d_colors, v, d_answer);
+      cudaMemcpy(&h_answer, d_answer, sizeof(bool), cudaMemcpyDeviceToHost); 
+      
+      if (h_answer) {
         min_count = c;
       }
+      cudaFree(d_answer);
       cudaFree(d_graph); 
       cudaFree(d_colors); 
     }
